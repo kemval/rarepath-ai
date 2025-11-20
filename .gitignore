@@ -43,6 +43,8 @@ ENV/
 .pytest_cache/
 .coverage
 htmlcov/
+test_results/
+evaluation_reports/
 
 # Database
 *.db
@@ -51,3 +53,15 @@ htmlcov/
 
 # Logs
 *.log
+rarepath.log
+
+# Data
+data/patient_data/
+data/*.csv
+data/*.json
+
+# OS
+Thumbs.db
+
+# Gemini artifacts (optional - uncomment if you want to ignore)
+# .gemini/
