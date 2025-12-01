@@ -4,9 +4,7 @@ A user-friendly web interface for the rare disease diagnostic assistant
 """
 
 import streamlit as st
-import asyncio
 from config import Config
-from agents.orchestrator import RarePathOrchestrator
 import time
 
 # Page configuration
@@ -72,10 +70,19 @@ if 'diagnosis_complete' not in st.session_state:
 if 'results' not in st.session_state:
     st.session_state.results = None
 
+@st.cache_resource
+def get_orchestrator():
+    """Initialize and cache the orchestrator - runs only once for all sessions"""
+    from agents.orchestrator import RarePathOrchestrator
+    return RarePathOrchestrator(Config.GEMINI_API_KEY)
+
 def run_diagnosis(patient_input: str, location: str):
-    """Run the diagnostic journey asynchronously"""
+    """Run the diagnostic journey asynchronously using cached orchestrator"""
+    import asyncio
+    
     async def async_diagnosis():
-        orchestrator = RarePathOrchestrator(Config.GEMINI_API_KEY)
+        # Use cached orchestrator instead of creating new one
+        orchestrator = get_orchestrator()
         result = await orchestrator.run_diagnostic_journey(
             patient_input=patient_input,
             patient_location=location
@@ -159,10 +166,9 @@ frequent headaches. My mother had similar symptoms."""
             if not patient_input or len(patient_input) < 20:
                 st.error("Please provide a more detailed description of your symptoms (at least 20 characters)")
             else:
-                with st.spinner("🔬 Starting analysis..."):
-                    st.session_state.patient_input = patient_input
-                    st.session_state.diagnosis_complete = True
-                    time.sleep(0.5)  # Brief pause to show the loading message
+                # Save input and trigger diagnosis
+                st.session_state.patient_input = patient_input
+                st.session_state.diagnosis_complete = True
                 st.rerun()
 
 else:
