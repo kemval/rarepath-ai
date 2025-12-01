@@ -239,7 +239,12 @@ else:
             for i, condition in enumerate(conditions[:5], 1):
                 with st.expander(f"{i}. {condition.get('name', 'Condition ' + str(i))}", expanded=(i==1)):
                     if condition.get('confidence'):
-                        st.metric("Confidence", f"{condition.get('confidence', 0):.0%}")
+                        # Handle both string and numeric confidence values
+                        confidence = condition.get('confidence', 'N/A')
+                        if isinstance(confidence, (int, float)):
+                            st.metric("Confidence", f"{confidence:.0%}")
+                        else:
+                            st.metric("Confidence", str(confidence))
                     if condition.get('matching_symptoms'):
                         st.markdown("**Matching Symptoms:**")
                         for symptom in condition['matching_symptoms']:
